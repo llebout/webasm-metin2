@@ -1,0 +1,65 @@
+<!doctype html>
+
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>WASM test</title>
+</head>
+
+<body>
+    <script>
+        document.addEventListener("DOMContentLoaded", main, false);
+
+
+        function wasmLoad(fileName) {
+
+            var memory = new WebAssembly.Memory({ initial: 100, maximum: 1000 });
+            heap = new Uint8Array(memory.buffer);
+
+            var imports = {
+                env: {
+                    console_log: function (arg) { console.log(arg); },
+                    memory: memory,
+                }
+            };
+
+            var request = new XMLHttpRequest();
+            request.open("GET", fileName);
+            request.responseType = "arraybuffer";
+            request.send();
+
+            request.onload = function () {
+
+                var wasmSource = request.response;
+                var wasmModule = new WebAssembly.Module(wasmSource);
+                var wasmInstance = new WebAssembly.Instance(wasmModule, imports);
+                wasm = wasmInstance.exports;
+
+                wasmLoadDone();
+
+            } // XMLHttpRequest.onload()
+        } // loadWasm()
+
+        //===============================================================
+        function main() {
+            wasmLoad("test.wasm");
+        }
+
+        function wasmLoadDone() {
+            console.log(wasm);
+            console.log("test")
+            console.log(wasm._Z4testv());
+            console.log("test2")
+            console.log(wasm._Z5test2v());
+            console.log("test3")
+            console.log(wasm._Z5test3v());
+            console.log("test4")
+            console.log(wasm._Z5test4v());
+            console.log("test5")
+            console.log(wasm._Z5test5v());
+        }
+    </script>
+</body>
+
+</html>
